@@ -16,9 +16,13 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    aws --version
-                '''
+                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        aws --version
+                        aws s3 ls
+                    '''
+                }
+
             }
         }
 
@@ -84,13 +88,13 @@ pipeline {
                     }
                 }
 
-                stage('Approval') {
-                    steps {
-                        timeout(time: 1, unit: 'MINUTES') {
-                            input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure I want to deploy!'
-                        }
-                    }
-                }
+                // stage('Approval') {
+                //     steps {
+                //         timeout(time: 1, unit: 'MINUTES') {
+                //             input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure I want to deploy!'
+                //         }
+                //     }
+                // }
 
                 stage('Deploy Prod') {
                     agent {
